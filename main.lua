@@ -14,7 +14,7 @@ function love.load()
     offset = 1
     paddleXoffset = - paddleWidth
     paddleRotSpeed = 12
-    initialPaddleYSpeed = 7
+    initialPaddleYSpeed = 14
     paddleYSpeed = initialPaddleYSpeed
     paddleJumping = false
     stringRot = 0
@@ -38,15 +38,16 @@ end
 
 function love.update(dt)
     input(dt)
+    dtime = dt
     
     --jumping
     if paddleJumping == true then
         paddleY = paddleY - paddleYSpeed
         if paddleYSpeed > 0 then 
-            paddleYSpeed = paddleYSpeed - 0.3
+            paddleYSpeed = paddleYSpeed - 36*dt
         else 
             if paddleY < initialPaddleY then
-                paddleYSpeed = paddleYSpeed - 0.3
+                paddleYSpeed = paddleYSpeed - 36*dt
             else
                 paddleY = initialPaddleY
                 paddleYSpeed = 0
@@ -58,7 +59,7 @@ function love.update(dt)
         --string vibration
         stringY = initialPaddleY-20+paddleHeight/2 + math.cos(stringRot)*10 --amplitude
         if stringY < paddleY then stringY = paddleY end
-        stringRot = stringRot + 0.3 --frequency
+        stringRot = stringRot + 18*dt --frequency
     end
     
     --"walking"
@@ -93,7 +94,7 @@ function love.update(dt)
         amplitude = 0.7
     end
     paddleY = paddleY + math.cos(stringRot)*amplitude
-    stringRot = stringRot + 0.2 -- frequency
+    stringRot = stringRot + 12*dt -- frequency
 
     --balls falling
     for ballIndex, ball in ipairs(balls) do
@@ -121,8 +122,8 @@ end
 function love.draw()
     --DEBUG
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
-    love.graphics.print("paddleRot: "..tostring(paddleRot), 10, 30)
-    love.graphics.print("amplitude: "..tostring(amplitude), 10, 50)
+    love.graphics.print("paddleYSpeed: "..tostring(paddleYSpeed), 10, 30)
+    love.graphics.print("dt: "..tostring(dtime), 10, 50)
     --floor
     --love.graphics.line(0,initialPaddleY+paddleHeight/2,windowWidth,initialPaddleY+paddleHeight/2)
     if paddleJumping == false then
