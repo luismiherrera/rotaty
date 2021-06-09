@@ -37,6 +37,8 @@ function love.load()
     }
 
     killed = love.audio.newSource("audio/goal.wav", "static")
+
+    collisionRectVisibility = false
 end
 
 function love.update(dt)
@@ -139,7 +141,6 @@ function love.draw()
     end
 
     -- paddle
-
     love.graphics.push()
     love.graphics.translate(paddleX - paddleXoffset,paddleY)
     love.graphics.setColor(1,0,0)
@@ -155,14 +156,17 @@ function love.draw()
                             paddleHeight/2,paddleHeight/2,5)
     love.graphics.pop()
     love.graphics.pop()
-    
-    love.graphics.setColor(0,1,0)
-    love.graphics.rectangle("line",
-                            paddleX,
-                            paddleY-paddleHeight/2, 
-                            paddleWidth, 
-                            paddleHeight)
-    love.graphics.setColor(1,1,1)
+
+    --paddle debug collision rectangle
+    if collisionRectVisibility then 
+        love.graphics.setColor(0,1,0)
+        love.graphics.rectangle("line",
+                                paddleX,
+                                paddleY-paddleHeight/2, 
+                                paddleWidth, 
+                                paddleHeight)
+        love.graphics.setColor(1,1,1)
+    end
     
     -- balls
     for ballIndex, ball in ipairs(balls) do 
@@ -204,6 +208,14 @@ function input(dt)
             elseif oldRot < 0 then
                 paddleRot = paddleRot - paddleRotSpeed*dt*0.5
             end
+        end
+    end
+
+    if love.keyboard.isDown("c") then
+        if collisionRectVisibility then
+            collisionRectVisibility = false
+        else
+            collisionRectVisibility = true
         end
     end
 end
