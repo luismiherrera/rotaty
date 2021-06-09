@@ -14,8 +14,9 @@ function love.load()
     offset = 1
     paddleXoffset = - paddleWidth
     paddleRotSpeed = 12
-    initialPaddleYSpeed = 14
+    initialPaddleYSpeed = 500
     paddleYSpeed = initialPaddleYSpeed
+    paddleYSpeedDamp = paddleYSpeed*2.8
     paddleJumping = false
     stringRot = 0
     amplitude = 0.3
@@ -42,12 +43,12 @@ function love.update(dt)
     
     --jumping
     if paddleJumping == true then
-        paddleY = paddleY - paddleYSpeed
+        paddleY = paddleY - paddleYSpeed*dt
         if paddleYSpeed > 0 then 
-            paddleYSpeed = paddleYSpeed - 36*dt
+            paddleYSpeed = paddleYSpeed - paddleYSpeedDamp*dt
         else 
             if paddleY < initialPaddleY then
-                paddleYSpeed = paddleYSpeed - 36*dt
+                paddleYSpeed = paddleYSpeed - paddleYSpeedDamp*dt
             else
                 paddleY = initialPaddleY
                 paddleYSpeed = 0
