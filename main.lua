@@ -25,11 +25,13 @@ function love.load()
         {
             x = math.random(10, windowWidth - 10),
             y = -10,
+            radius = 10,
             speed = math.random(50, 170)
         },
         {
             x = math.random(10, windowWidth - 10),
             y = -10,
+            radius = 10,
             speed = math.random(50, 170)
         }
     }
@@ -102,8 +104,8 @@ function love.update(dt)
         ball.y = ball.y + ball.speed * dt
 
         -- checking collission
-        if ball.y > paddleY and ball.y < paddleY + paddleHeight then
-            if ball.x > paddleX and ball.x < paddleX + paddleWidth then
+        if ball.y + ball.radius > paddleY and ball.y - ball.radius < paddleY + paddleHeight then
+            if ball.x + ball.radius > paddleX and ball.x - ball.radius < paddleX + paddleWidth then
                 collission = true
                 love.audio.play(killed)
             end
@@ -112,7 +114,7 @@ function love.update(dt)
         end
         
         -- reseting vertical position when ball reaches the ground
-        if ball.y > windowHeight or collission then
+        if ball.y + ball.radius > windowHeight or collission then
            -- delete ball
             ball.y = -10
             ball.x = math.random(10, windowWidth - 10)
@@ -137,6 +139,7 @@ function love.draw()
     end
 
     -- paddle
+
     love.graphics.push()
     love.graphics.translate(paddleX - paddleXoffset,paddleY)
     love.graphics.setColor(1,0,0)
@@ -153,10 +156,18 @@ function love.draw()
     love.graphics.pop()
     love.graphics.pop()
     
+    love.graphics.setColor(0,1,0)
+    love.graphics.rectangle("line",
+                            paddleX,
+                            paddleY-paddleHeight/2, 
+                            paddleWidth, 
+                            paddleHeight)
+    love.graphics.setColor(1,1,1)
+    
     -- balls
-    -- for ballIndex, ball in ipairs(balls) do 
-    --     love.graphics.circle("fill", ball.x, ball.y, 10)
-    -- end
+    for ballIndex, ball in ipairs(balls) do 
+        love.graphics.circle("fill", ball.x, ball.y, ball.radius)
+    end
 end
 
 function input(dt)
