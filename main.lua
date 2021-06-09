@@ -13,7 +13,7 @@ function love.load()
     pivotMoved = false
     offset = 1
     paddleXoffset = - paddleWidth
-    paddleRotSpeed = 0.2
+    paddleRotSpeed = 12
     initialPaddleYSpeed = 7
     paddleYSpeed = initialPaddleYSpeed
     paddleJumping = false
@@ -37,7 +37,7 @@ function love.load()
 end
 
 function love.update(dt)
-    input()
+    input(dt)
     
     --jumping
     if paddleJumping == true then
@@ -120,8 +120,9 @@ end
 
 function love.draw()
     --DEBUG
-    love.graphics.print(tostring(paddleRot), 10, 10)
-    love.graphics.print(tostring(amplitude), 10, 20)
+    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+    love.graphics.print("paddleRot: "..tostring(paddleRot), 10, 30)
+    love.graphics.print("amplitude: "..tostring(amplitude), 10, 50)
     --floor
     --love.graphics.line(0,initialPaddleY+paddleHeight/2,windowWidth,initialPaddleY+paddleHeight/2)
     if paddleJumping == false then
@@ -156,7 +157,7 @@ function love.draw()
     -- end
 end
 
-function input()
+function input(dt)
     if love.keyboard.isDown("escape") then
         love.event.quit()
     end
@@ -164,12 +165,12 @@ function input()
     noKeyDown = true
 
     if love.keyboard.isDown("right") then
-        paddleRot = paddleRot + paddleRotSpeed
+        paddleRot = paddleRot + paddleRotSpeed*dt
         noKeyDown = false
     end
 
     if love.keyboard.isDown("left") then
-        paddleRot = paddleRot - paddleRotSpeed
+        paddleRot = paddleRot - paddleRotSpeed*dt
         noKeyDown = false
     end
 
@@ -179,16 +180,16 @@ function input()
 
     if noKeyDown == true then
         if paddleRot > 0 then
-            paddleRot = paddleRot + paddleRotSpeed*0.5
+            paddleRot = paddleRot + paddleRotSpeed*dt*0.5
             oldRot = paddleRot
         elseif paddleRot < 0 then
-            paddleRot = paddleRot - paddleRotSpeed*0.5
+            paddleRot = paddleRot - paddleRotSpeed*dt*0.5
             oldRot = paddleRot
         elseif paddleRot == 0 and paddleJumping == true then
             if oldRot > 0 then
-                paddleRot = paddleRot + paddleRotSpeed*0.5
+                paddleRot = paddleRot + paddleRotSpeed*dt*0.5
             elseif oldRot < 0 then
-                paddleRot = paddleRot - paddleRotSpeed*0.5
+                paddleRot = paddleRot - paddleRotSpeed*dt*0.5
             end
         end
     end
