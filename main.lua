@@ -43,7 +43,7 @@ function love.load()
 
     killed = love.audio.newSource("audio/goal.wav", "static")
 
-    collisionRectVisibility = true
+    debugVisibility = true
 end
 
 function love.update(dt)
@@ -139,21 +139,31 @@ end
 
 function love.draw()
     --DEBUG
-    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
-    love.graphics.print("paddleRot: "..tostring(paddleRot), 10, 30)
-    love.graphics.print("math.cos(2*paddleRot-math.pi): "..tostring(math.cos(2*paddleRot-math.pi)), 10, 50)
-    --floor
-    --love.graphics.line(0,initialPaddleY+paddleHeight/2,windowWidth,initialPaddleY+paddleHeight/2)
-    if paddleJumping == false then
-        love.graphics.line(-100,initialPaddleY-20+paddleHeight/2,paddleX,paddleY+paddleHeight/2)
-        love.graphics.line(paddleX,paddleY+paddleHeight/2,windowWidth+200,initialPaddleY-20+paddleHeight/2)
-    else
-        -- love.graphics.line(-100,initialPaddleY-20+paddleHeight/2,windowWidth,initialPaddleY-20+paddleHeight/2)
-        love.graphics.line(-100,initialPaddleY-20+paddleHeight/2,paddleX,stringY)
-        love.graphics.line(paddleX,stringY,windowWidth+200,initialPaddleY-20+paddleHeight/2)
+    --paddle debug collision rectangle
+    if debugVisibility then 
+        love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+        love.graphics.print("paddleRot: "..tostring(paddleRot), 10, 30)
+        love.graphics.print("math.cos(2*paddleRot-math.pi): "..tostring(math.cos(2*paddleRot-math.pi)), 10, 50)
+
+        love.graphics.setColor(0,1,0)
+        love.graphics.rectangle("line",
+                                paddleBBX,
+                                paddleBBY,
+                                paddleBBWidth, 
+                                paddleBBHeight)
+        love.graphics.setColor(1,1,1)
     end
 
-    -- paddle
+    --STRING
+    if paddleJumping == false then
+        love.graphics.line(-100,initialPaddleY-20+paddleHeight/2,paddleBBX+15,paddleY+paddleHeight/2)
+        love.graphics.line(paddleBBX+16,paddleY+paddleHeight/2,windowWidth+200,initialPaddleY-20+paddleHeight/2)
+    else
+        love.graphics.line(-100,initialPaddleY-20+paddleHeight/2,paddleBBX+15,stringY)
+        love.graphics.line(paddleBBX+16,stringY,windowWidth+200,initialPaddleY-20+paddleHeight/2)
+    end
+
+    --PADDLE
     love.graphics.push()
     love.graphics.translate(paddleX - paddleXoffset,paddleY)
     love.graphics.setColor(1,0,0)
@@ -170,18 +180,9 @@ function love.draw()
     love.graphics.pop()
     love.graphics.pop()
 
-    --paddle debug collision rectangle
-    if collisionRectVisibility then 
-        love.graphics.setColor(0,1,0)
-        love.graphics.rectangle("line",
-                                paddleBBX,
-                                paddleBBY,
-                                paddleBBWidth, 
-                                paddleBBHeight)
-        love.graphics.setColor(1,1,1)
-    end
     
-    -- balls
+    
+    --BALLS
     for ballIndex, ball in ipairs(balls) do 
         love.graphics.circle("fill", ball.x, ball.y, ball.radius)
     end
@@ -224,11 +225,11 @@ function input(dt)
         end
     end
 
-    if love.keyboard.isDown("c") then
-        if collisionRectVisibility then
-            collisionRectVisibility = false
+    if love.keyboard.isDown("d") then
+        if debugVisibility then
+            debugVisibility = false
         else
-            collisionRectVisibility = true
+            debugVisibility = true
         end
     end
 end
