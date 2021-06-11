@@ -45,7 +45,7 @@ function love.load()
 
     killed = love.audio.newSource("audio/goal.wav", "static")
 
-    debugVisibility = true
+    debugVisibility = false
 end
 
 function love.update(dt)
@@ -99,14 +99,14 @@ function love.update(dt)
     end
 
     --paddle vibration
-    -- if paddleRot == 0 then
-    --     amplitude = amplitude - 0.001
-    --     if amplitude < 0 then amplitude = 0 end
-    -- else
-    --     amplitude = 0.7
-    -- end
-    -- paddleY = paddleY + math.cos(stringRot)*amplitude
-    -- stringRot = stringRot + 12*dt -- frequency
+    if paddleRot == 0 then
+        amplitude = amplitude - 0.001
+        if amplitude < 0 then amplitude = 0 end
+    else
+        amplitude = 0.7
+    end
+    paddleY = paddleY + math.cos(stringRot)*amplitude
+    stringRot = stringRot + 12*dt -- frequency
 
     --paddle bounding box
     paddleBBX = paddleX+((paddleRot/2)*((paddleWidth/2)+paddleHeight/2)) + 5
@@ -202,21 +202,17 @@ function love.draw()
     love.graphics.pop()
     love.graphics.pop()
 
-    
-    --BULLETS
-    for bulletIndex, bullet in ipairs(bullets) do
-        love.graphics.setColor(0, 1, 0)
-        love.graphics.circle('fill', bullet.x, bullet.y, 5)
-    end
-
     --BALLS
     for ballIndex, ball in ipairs(balls) do 
         love.graphics.setColor(1,1,1)
         love.graphics.circle("fill", ball.x, ball.y, ball.radius)
     end
 
-
-
+    --BULLETS
+    for bulletIndex, bullet in ipairs(bullets) do
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.circle('fill', bullet.x, bullet.y, 3)
+    end
 end
 
 function input(dt)
@@ -267,14 +263,14 @@ function love.keypressed(key)
     end
     
     if key == 'space' then
-        if paddleRot > 0 then
+        if paddleRot > 0  or (paddleRot == 0 and oldRot < 0) then
             table.insert(bullets, {
                 x = paddleX + paddleWidth - (math.sin(paddleRot+math.pi/2))*paddleWidth,
                 y = paddleY + (math.cos(paddleRot+math.pi/2))*paddleWidth,
                 angle = paddleRot,
                 dir = "positive"
             })
-        elseif paddleRot < 0 then
+        elseif paddleRot < 0 or (paddleRot == 0 and oldRot > 0) then
             table.insert(bullets, {
                 x = paddleX - (math.sin(paddleRot-math.pi/2))*paddleWidth,
                 y = paddleY - (math.cos(paddleRot+math.pi/2))*paddleWidth,
