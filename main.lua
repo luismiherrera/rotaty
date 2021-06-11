@@ -41,6 +41,8 @@ function love.load()
         }
     }
 
+    bullets = {}
+
     killed = love.audio.newSource("audio/goal.wav", "static")
 
     debugVisibility = true
@@ -97,14 +99,14 @@ function love.update(dt)
     end
 
     --paddle vibration
-    if paddleRot == 0 then
-        amplitude = amplitude - 0.001
-        if amplitude < 0 then amplitude = 0 end
-    else
-        amplitude = 0.7
-    end
-    paddleY = paddleY + math.cos(stringRot)*amplitude
-    stringRot = stringRot + 12*dt -- frequency
+    -- if paddleRot == 0 then
+    --     amplitude = amplitude - 0.001
+    --     if amplitude < 0 then amplitude = 0 end
+    -- else
+    --     amplitude = 0.7
+    -- end
+    -- paddleY = paddleY + math.cos(stringRot)*amplitude
+    -- stringRot = stringRot + 12*dt -- frequency
 
     --paddle bounding box
     paddleBBX = paddleX+((paddleRot/2)*((paddleWidth/2)+paddleHeight/2)) + 5
@@ -135,6 +137,25 @@ function love.update(dt)
             ball.x = math.random(10, windowWidth - 10)
         end
     end
+
+    for bulletIndex = #bullets, 1, -1 do
+        local bullet = bullets[bulletIndex]
+
+        --bullet.timeLeft = bullet.timeLeft - dt
+
+        if bullet.x < 0 or bullet.x > windowWidth or bullet.y < 0 or bullet.y > windowHeight then--bullet.timeLeft <= 0 then
+            table.remove(bullets, bulletIndex)
+        else
+            local bulletSpeed = 500
+            if bullet.dir == "positive" then
+                bullet.x = (bullet.x - math.cos(bullet.angle) * bulletSpeed * dt)
+                bullet.y = (bullet.y - math.sin(bullet.angle) * bulletSpeed * dt)
+            else
+                bullet.x = (bullet.x + math.cos(bullet.angle) * bulletSpeed * dt)
+                bullet.y = (bullet.y + math.sin(bullet.angle) * bulletSpeed * dt)
+            end
+        end
+    end
 end
 
 function love.draw()
@@ -155,6 +176,7 @@ function love.draw()
     end
 
     --STRING
+    love.graphics.setColor(1,1,1)
     if paddleJumping == false then
         love.graphics.line(-100,initialPaddleY-20+paddleHeight/2,paddleBBX+15,paddleY+paddleHeight/2)
         love.graphics.line(paddleBBX+16,paddleY+paddleHeight/2,windowWidth+200,initialPaddleY-20+paddleHeight/2)
@@ -181,11 +203,20 @@ function love.draw()
     love.graphics.pop()
 
     
-    
+    --BULLETS
+    for bulletIndex, bullet in ipairs(bullets) do
+        love.graphics.setColor(0, 1, 0)
+        love.graphics.circle('fill', bullet.x, bullet.y, 5)
+    end
+
     --BALLS
     for ballIndex, ball in ipairs(balls) do 
+        love.graphics.setColor(1,1,1)
         love.graphics.circle("fill", ball.x, ball.y, ball.radius)
     end
+
+
+
 end
 
 function input(dt)
@@ -224,12 +255,32 @@ function input(dt)
             end
         end
     end
+end
 
-    if love.keyboard.isDown("d") then
+function love.keypressed(key)
+    if key == 'd' then
         if debugVisibility then
             debugVisibility = false
         else
             debugVisibility = true
+        end
+    end
+    
+    if key == 'space' then
+        if paddleRot > 0 then
+            table.insert(bullets, {
+                x = paddleX + paddleWidth - (math.sin(paddleRot+math.pi/2))*paddleWidth,
+                y = paddleY + (math.cos(paddleRot+math.pi/2))*paddleWidth,
+                angle = paddleRot,
+                dir = "positive"
+            })
+        elseif paddleRot < 0 then
+            table.insert(bullets, {
+                x = paddleX - (math.sin(paddleRot-math.pi/2))*paddleWidth,
+                y = paddleY - (math.cos(paddleRot+math.pi/2))*paddleWidth,
+                angle = paddleRot,
+                dir = "negative"
+            })
         end
     end
 end
