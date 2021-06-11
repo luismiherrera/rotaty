@@ -110,11 +110,18 @@ function love.update(dt)
 
     --paddle bounding box
     paddleBBX = paddleX+((paddleRot/2)*((paddleWidth/2)+paddleHeight/2)) + 5
-    --paddleBBY = paddleY-paddleHeight*2 - ((math.cos(2*paddleRot-math.pi)*(paddleWidth/2)))
     paddleBBY = paddleY-paddleHeight*2 - (math.cos(2*paddleRot-math.pi)*(paddleWidth/2)) + 3
     paddleBBWidth = paddleWidth - 10
     paddleBBHeight = paddleHeight*2.5 + ((math.cos(2*paddleRot-math.pi)*(paddleWidth/2))) - 7
 
+    --paddle second eye
+    if paddleRot >= 0 then
+        eyeX = paddleX + paddleWidth - (math.sin(paddleRot+math.pi/2))*paddleWidth
+        eyeY = paddleY + (math.cos(paddleRot+math.pi/2))*paddleWidth
+    else
+        eyeX = paddleX - (math.sin(paddleRot-math.pi/2))*paddleWidth
+        eyeY = paddleY - (math.cos(paddleRot+math.pi/2))*paddleWidth
+    end
 
     --balls falling
     for ballIndex, ball in ipairs(balls) do
@@ -201,6 +208,9 @@ function love.draw()
                             paddleHeight/2,paddleHeight/2,5)
     love.graphics.pop()
     love.graphics.pop()
+
+    love.graphics.setColor(1,0,0)
+    love.graphics.circle("fill", eyeX, eyeY, 3)
 
     --BALLS
     for ballIndex, ball in ipairs(balls) do 
