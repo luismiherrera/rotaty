@@ -20,6 +20,11 @@ function love.load()
     paddleJumping = false
     stringRot = 0
     amplitude = 0.3
+
+    paddleBBX = paddleX+((paddleRot/2)*((paddleWidth/2)+paddleHeight/2))
+    paddleBBY = paddleY-paddleHeight*2 - ((math.cos(2*paddleRot-math.pi)*(paddleWidth/2)))
+    paddleBBWidth = paddleWidth
+    paddleBBHeight = paddleHeight*2.5 + ((math.cos(2*paddleRot-math.pi)*(paddleWidth/2)))
     
     balls = {
         {
@@ -38,7 +43,7 @@ function love.load()
 
     killed = love.audio.newSource("audio/goal.wav", "static")
 
-    collisionRectVisibility = false
+    collisionRectVisibility = true
 end
 
 function love.update(dt)
@@ -101,13 +106,21 @@ function love.update(dt)
     paddleY = paddleY + math.cos(stringRot)*amplitude
     stringRot = stringRot + 12*dt -- frequency
 
+    --paddle bounding box
+    paddleBBX = paddleX+((paddleRot/2)*((paddleWidth/2)+paddleHeight/2)) + 5
+    --paddleBBY = paddleY-paddleHeight*2 - ((math.cos(2*paddleRot-math.pi)*(paddleWidth/2)))
+    paddleBBY = paddleY-paddleHeight*2 - (math.cos(2*paddleRot-math.pi)*(paddleWidth/2)) + 3
+    paddleBBWidth = paddleWidth - 10
+    paddleBBHeight = paddleHeight*2.5 + ((math.cos(2*paddleRot-math.pi)*(paddleWidth/2))) - 7
+
+
     --balls falling
     for ballIndex, ball in ipairs(balls) do
         ball.y = ball.y + ball.speed * dt
 
         -- checking collission
-        if ball.y + ball.radius > paddleY and ball.y - ball.radius < paddleY + paddleHeight then
-            if ball.x + ball.radius > paddleX and ball.x - ball.radius < paddleX + paddleWidth then
+        if ball.y + ball.radius > paddleBBY and ball.y - ball.radius < paddleBBY + paddleBBHeight then
+            if ball.x + ball.radius > paddleBBX and ball.x - ball.radius < paddleBBX + paddleBBWidth then
                 collission = true
                 love.audio.play(killed)
             end
@@ -127,8 +140,8 @@ end
 function love.draw()
     --DEBUG
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
-    love.graphics.print("paddleYSpeed: "..tostring(paddleYSpeed), 10, 30)
-    love.graphics.print("dt: "..tostring(dtime), 10, 50)
+    love.graphics.print("paddleRot: "..tostring(paddleRot), 10, 30)
+    love.graphics.print("math.cos(2*paddleRot-math.pi): "..tostring(math.cos(2*paddleRot-math.pi)), 10, 50)
     --floor
     --love.graphics.line(0,initialPaddleY+paddleHeight/2,windowWidth,initialPaddleY+paddleHeight/2)
     if paddleJumping == false then
@@ -161,10 +174,10 @@ function love.draw()
     if collisionRectVisibility then 
         love.graphics.setColor(0,1,0)
         love.graphics.rectangle("line",
-                                paddleX,
-                                paddleY-paddleHeight/2, 
-                                paddleWidth, 
-                                paddleHeight)
+                                paddleBBX,
+                                paddleBBY,
+                                paddleBBWidth, 
+                                paddleBBHeight)
         love.graphics.setColor(1,1,1)
     end
     
