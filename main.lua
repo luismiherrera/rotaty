@@ -42,6 +42,8 @@ function love.load()
     }
 
     bullets = {}
+    bulletTimerLimit = 0.1
+    bulletTimer = bulletTimerLimit
 
     killed = love.audio.newSource("audio/goal.wav", "static")
 
@@ -145,10 +147,9 @@ function love.update(dt)
         end
     end
 
+    
     for bulletIndex = #bullets, 1, -1 do
         local bullet = bullets[bulletIndex]
-
-        --bullet.timeLeft = bullet.timeLeft - dt
 
         if bullet.x < 0 or bullet.x > windowWidth or bullet.y < 0 or bullet.y > windowHeight then--bullet.timeLeft <= 0 then
             table.remove(bullets, bulletIndex)
@@ -168,10 +169,11 @@ end
 function love.draw()
     --DEBUG
     --paddle debug collision rectangle
-    if debugVisibility then 
+    if debugVisibility then
+        love.graphics.setColor(1, 1, 1) 
         love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
         love.graphics.print("paddleRot: "..tostring(paddleRot), 10, 30)
-        love.graphics.print("math.cos(2*paddleRot-math.pi): "..tostring(math.cos(2*paddleRot-math.pi)), 10, 50)
+        love.graphics.print("bullets: "..tostring(#bullets), 10, 50)
 
         love.graphics.setColor(0,1,0)
         love.graphics.rectangle("line",
@@ -222,7 +224,7 @@ function love.draw()
     for bulletIndex, bullet in ipairs(bullets) do
         love.graphics.setColor(1, 0, 0)
         love.graphics.circle('fill', bullet.x, bullet.y, 3)
-    end
+    end     
 end
 
 function input(dt)
@@ -232,18 +234,41 @@ function input(dt)
 
     noKeyDown = true
 
-    if love.keyboard.isDown("right") then
+    if love.keyboard.isDown("right") or love.keyboard.isDown("l") then
         paddleRot = paddleRot + paddleRotSpeed*dt
         noKeyDown = false
     end
 
-    if love.keyboard.isDown("left") then
+    if love.keyboard.isDown("left") or love.keyboard.isDown("j") then
         paddleRot = paddleRot - paddleRotSpeed*dt
         noKeyDown = false
     end
 
-    if love.keyboard.isDown("up") and paddleJumping == false then
+    if love.keyboard.isDown("up") or love.keyboard.isDown("i") and paddleJumping == false then
         paddleJumping = true
+    end
+
+    bulletTimer = bulletTimer + dt
+
+    if love.keyboard.isDown("space") then
+        if bulletTimer >= bulletTimerLimit then
+            bulletTimer = 0
+            if paddleRot > 0  or (paddleRot == 0 and oldRot < 0) then
+                table.insert(bullets, {
+                    x = paddleX + paddleWidth - (math.sin(paddleRot+math.pi/2))*paddleWidth,
+                    y = paddleY + (math.cos(paddleRot+math.pi/2))*paddleWidth,
+                    angle = paddleRot,
+                    dir = "positive"
+                })
+            elseif paddleRot < 0 or (paddleRot == 0 and oldRot > 0) then
+                table.insert(bullets, {
+                    x = paddleX - (math.sin(paddleRot-math.pi/2))*paddleWidth,
+                    y = paddleY - (math.cos(paddleRot+math.pi/2))*paddleWidth,
+                    angle = paddleRot,
+                    dir = "negative"
+                })
+            end
+        end
     end
 
     if noKeyDown == true then
@@ -264,7 +289,7 @@ function input(dt)
 end
 
 function love.keypressed(key)
-    if key == 'd' then
+    if key == 'm' then
         if debugVisibility then
             debugVisibility = false
         else
@@ -272,21 +297,21 @@ function love.keypressed(key)
         end
     end
     
-    if key == 'space' then
-        if paddleRot > 0  or (paddleRot == 0 and oldRot < 0) then
-            table.insert(bullets, {
-                x = paddleX + paddleWidth - (math.sin(paddleRot+math.pi/2))*paddleWidth,
-                y = paddleY + (math.cos(paddleRot+math.pi/2))*paddleWidth,
-                angle = paddleRot,
-                dir = "positive"
-            })
-        elseif paddleRot < 0 or (paddleRot == 0 and oldRot > 0) then
-            table.insert(bullets, {
-                x = paddleX - (math.sin(paddleRot-math.pi/2))*paddleWidth,
-                y = paddleY - (math.cos(paddleRot+math.pi/2))*paddleWidth,
-                angle = paddleRot,
-                dir = "negative"
-            })
-        end
-    end
+    -- if key == 'space' then
+    --     if paddleRot > 0  or (paddleRot == 0 and oldRot < 0) then
+    --         table.insert(bullets, {
+    --             x = paddleX + paddleWidth - (math.sin(paddleRot+math.pi/2))*paddleWidth,
+    --             y = paddleY + (math.cos(paddleRot+math.pi/2))*paddleWidth,
+    --             angle = paddleRot,
+    --             dir = "positive"
+    --         })
+    --     elseif paddleRot < 0 or (paddleRot == 0 and oldRot > 0) then
+    --         table.insert(bullets, {
+    --             x = paddleX - (math.sin(paddleRot-math.pi/2))*paddleWidth,
+    --             y = paddleY - (math.cos(paddleRot+math.pi/2))*paddleWidth,
+    --             angle = paddleRot,
+    --             dir = "negative"
+    --         })
+    --     end
+    -- end
 end
